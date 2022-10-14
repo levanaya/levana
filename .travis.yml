@@ -7,7 +7,7 @@ branches:
 cache:
   npm: true
 install:
-  - npm install # npm ci
+  - npm i # npm ci
 script:
   - git config --global user.name "${GH_NAME}"
   - git config --global user.email "${GH_EMAIL}"
