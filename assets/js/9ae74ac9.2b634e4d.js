@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklevana_website=self.webpackChunklevana_website||[]).push([[4457],{8752:a=>{a.exports=JSON.parse('{"label":"docusaurus","permalink":"/levana/blog/tags/docusaurus","allTagsPath":"/levana/blog/tags","count":4}')}}]);

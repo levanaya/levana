@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklevana_website=self.webpackChunklevana_website||[]).push([[2463],{453:e=>{e.exports=JSON.parse('{"label":"hello","permalink":"/levana/blog/tags/hello","allTagsPath":"/levana/blog/tags","count":2}')}}]);
