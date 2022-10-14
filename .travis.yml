@@ -2,8 +2,10 @@ language: node_js
 node_js:
   - 18
 branches:
-  only:
-    - main
+   only:
+      -main
+cache:
+  npm: true
 install:
   - npm install # npm ci
 script:
@@ -12,6 +14,4 @@ script:
   - echo "machine github.com login ${GH_NAME} password ${GH_TOKEN}" > ~/.netrc
   - npm install
   - GIT_USER="${GH_NAME}" npm run build
- deploy:
-   on:
-      branch: main
+
