@@ -1001,6 +1001,10 @@ ES7 标准中新增的 `async` 函数，从目前的内部实现来说其实就�
 
 引用数据类型：Object、Array、Function
 
+在 JS 中，存在着 7 种原始值，分别是： boolean null undefined number string symbol bigint 
+
+引用数据类型: 对象Object（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象Date，数学函数-Math，函数对象-Function）
+
 
 
 ## 17. 防抖和节流

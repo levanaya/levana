@@ -30,7 +30,7 @@ Model-View-ViewModel 模式
 
 **视图变化了, 绑定的数据自动更新** =>  会监听双向绑定的表单元素的变化，⼀旦变化，绑定的数据也会得到⾃动更新。
 
-
+ViewModel 通过双向数据绑定把 View 层和 Model 层连接了起来，而View 和 Model 之间的同步工作完全是自动的，无需人为干涉，因此开发者只需关注业务逻辑，不需要手动操作DOM, 不需要关注数据状态的同步问题，复杂的数据状态维护完全由 MVVM 来统一管理。
 
 ## 2. MVVM的优缺点有哪些？
 
@@ -388,8 +388,6 @@ export default {
 
 在 Vue 3.0 中，则是通过 `Proxy` 代理对象进⾏类似的操作。劫持的是整个对象, 只要对象中的属性变化了, 都能劫持到
 
-
-
 ### 7.2 Object.defineProperty和Proxy的优缺点？
 
 **Proxy** 
@@ -524,8 +522,6 @@ dep: [
 
 
 总结概述: vue采用的是观察者模式, 是一种`一对多`的关系,  一上来vue在解析渲染时, 会进行依赖收集, 会将渲染 watcher、计算属性 watcher、侦听器 watcher,  都收集到对应的dep中, 将来Object.defineProperty 监听到数据变化, 就根据依赖关系, 派发更新
-
-
 
 
 
@@ -677,10 +673,6 @@ created () {
     }
 }
 ```
-
-
-
-
 
 
 
@@ -949,3 +941,82 @@ SPA应用: 单页应用程序, 所有的功能, 都在一个页面中, 如果第
 -  付款
 
 4 哪些模块你是会的, 就可以着重介绍, 哪些模块不太会做, 就查资料, 对比方案, 构思思路
+
+## 17. 虚拟 DOM 实现原理 
+
+- 虚拟DOM本质上是JavaScript对象,是对真实DOM的抽象 
+
+- 状态变更时，记录新树和旧树的差异 
+
+- 最后把差异更新到真正的dom
+
+  ![image-20221018214809447](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/20221018214809.png)
+
+![image-20221018214653014](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/20221018214700.png)
+
+## 18. route 和 router 的区别是什么？ 
+
+route 是“路由信息对象”，包括 path , params , hash , query , fullPath , matched , name 等路由信息参数。
+
+router 是“路由实例对象”，包括了路由的跳转方法( push 、 replace )，钩子函数等。
+
+## 19. Vue 的 nextTick 的原理是什么？ 
+
+**1）为什么需要 nextTick** 
+
+Vue 是异步修改 DOM 的并且不鼓励开发者直接接触 DOM，但有时候业务需要必须对数据更改--刷新后 的 DOM 做相应的处理，这时候就可以使用 Vue.nextTick(callback)这个 api 了。 
+
+**2）理解原理前的准备** 
+
+首先需要知道事件循环中宏任务和微任务这两个概念(这其实也是面试常考点)。 
+
+常见的宏任务有 script, setTimeout, setInterval, setImmediate, I/O, UI rendering 
+
+常见的微任务有 process.nextTick(Nodejs),Promise.then(), MutationObserver; 
+
+**3）理解 nextTick** 
+
+而 nextTick 的原理正是 vue 通过异步队列控制 DOM 更新和 nextTick 回调函数先后执行的方式。如果 大家看过这部分的源码，会发现其中做了很多 isNative()的判断，因为这里还存在兼容性优雅降级的问 题。可见 Vue 开发团队的深思熟虑，对性能的良苦用心。
+
+## 20. vuex
+
+**（1）vuex是什么？怎么使用？哪种功能场景使用它？** 
+
+vue框架中状态管理。在main.js引入store，注入。新建一个目录store，….. export 。 
+
+场景有：单页应用中，组件之间的状态。音乐播放、登录状态、加入购物车 
+
+**（2）vuex有哪几种属性？** 
+
+有五种，分别是 State、 Getter、Mutation 、Action、 Module 
+
+- vuex的State特性 
+
+A、Vuex就是一个仓库，仓库里面放了很多对象。其中state就是数据源存放地，对应于一般Vue对象里面的data
+
+B、state里面存放的数据是响应式的，Vue组件从store中读取数据，若是store中的数据发生改变，依赖这个数据的组件也会发生更新 
+
+C、它通过mapState把全局的 state 和 getters 映射到当前组件的 computed 计算属性中 
+
+- vuex的Getter特性 
+
+A、getters 可以对State进行计算操作，它就是Store的计算属性 
+
+B、 虽然在组件内也可以做计算属性，但是getters 可以在多组件之间复用 
+
+C、 如果一个状态只在一个组件内使用，是可以不用getters 
+
+- vuex的Mutation特性 
+
+Action 类似于 mutation，不同在于：Action 提交的是 mutation，而不是直接变更状态；Action可以包含任意异步操作。 
+
+**（3）不用Vuex会带来什么问题？** 
+
+可维护性会下降，想修改数据要维护三个地方； 
+
+可读性会下降，因为一个组件里的数据，根本就看不出来是从哪来的； 
+
+增加耦合，大量的上传派发，会让耦合性大大增加，本来Vue用Component就是为了减少耦合，现 在这么用，和组件化的初衷相背
+
+
+
