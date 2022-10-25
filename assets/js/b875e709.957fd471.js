@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklevana_website=self.webpackChunklevana_website||[]).push([[1278],{7742:e=>{e.exports=JSON.parse('[{"label":"Git","permalink":"/levana/dev/tags/git","count":9},{"label":"GitHub","permalink":"/levana/dev/tags/git-hub","count":1}]')}}]);
