@@ -30,6 +30,10 @@ sidebar_position: 1
 1.   使用虚拟(virtual)DOM, 不总是直接操作页面真实DOM。
 2.   DOM Diffing算法, 最小化页面重绘。
 
+### 1.5 虚拟DOM
+
+虚拟DOM（Virtual DOM）它是使用javaScript对象来描述真实DOM，虚拟DOM的本质就是**javaScript对象**，使用javaScript对象来描述DOM的结构，程序的各种状态变化首先作用于虚拟DOM，最终映射到真实DOM上。
+
 ## 2. React的基本使用
 
 ### 2.1 相关js库
