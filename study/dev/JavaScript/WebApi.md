@@ -250,7 +250,7 @@ setInterval(函数，间隔时间)
 
 1. 事件类型要加引号
 2. 函数是点击之后再去执行，每次
-  点击都会执行一次
+    点击都会执行一次
 
 
 
@@ -553,7 +553,7 @@ let date = new Date('1949-10-01')
 
 - 语法：
 
-  ![image-20221102234305665](C:/Users/levana/AppData/Roaming/Typora/typora-user-images/image-20221102234305665.png)
+  ![image-20221102234305665](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/image-20221102234305665.png)
 
 - 此方法可以阻断事件流动传播，不光在冒泡阶段有效，捕获阶段也有效
 
@@ -826,7 +826,7 @@ history 的数据类型是对象，该对象与浏览器地址栏的操作相对
 
 3、以键值对的形式存储使用
 
-![image-20221103002942201](C:/Users/levana/AppData/Roaming/Typora/typora-user-images/image-20221103002942201.png)
+![image-20221103002942201](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/image-20221103002942201.png)
 
 **存储复杂数据类型存储** 
 
