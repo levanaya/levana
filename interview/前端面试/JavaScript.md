@@ -248,15 +248,21 @@ cycle()
 
 
 
-## 4. 谈谈你对 JavaScript 作用域链的理解？
+## 4. 谈谈你对 JavaScript 作用域、作用域链的理解？
+
+作用域：就是一个规则，用来查找变量。
+
+作用域是变量和函数的可访问范围，即作用域控制着变量与函数的可见性和生命周期。是一个独立的地盘，让变量不会外泄、暴露出去。也就是说作用域最大的用处就是隔离变量，不同作用域下同名变量不会有冲突。
+
+常见的作用域有：全局作用域、局部作用域、块级作用域、动态作用域。
+
+所有window对象的属性拥有全局作用域。
 
 JavaScript 在执⾏过程中会创建一个个的**可执⾏上下⽂**。 (每个函数执行都会创建这么一个可执行上下文)
 
 每个可执⾏上下⽂的词法环境中包含了对外部词法环境的引⽤，可通过该引⽤来获取外部词法环境中的变量和声明等。
 
 这些引⽤串联起来，⼀直指向全局的词法环境，形成一个链式结构，被称为作⽤域链。
-
-
 
 简而言之: 函数内部 可以访问到 函数外部作用域的变量,  而外部函数还可以访问到全局作用域的变量,
 
@@ -293,8 +299,6 @@ js全局有全局可执行上下文, 每个函数调用时, 有着函数的可�
 每个可执行上下文, 都有者对于外部上下文词法作用域的引用, 外部上下文也有着对于再外部的上下文词法作用域的引用 
 
 **=> 就形成了作用域链**
-
-
 
 
 
@@ -347,7 +351,36 @@ addFn()
 addFn()
 ```
 
+**闭包有哪些表现形式？**
 
+1. 返回一个函数。
+
+2. 在定时器、事件监听、Ajax请求、跨窗口通信、Web Workers或者任何异步中，只要**使用了回调函数**，实际上就是在使用闭包。
+
+   以下的闭包保存的仅仅是window和当前作用域。
+
+   ```
+   // 定时器
+   setTimeout(function timeHandler(){
+   console.log('111');
+   }，100)
+   // 事件监听
+   $('#app').click(function(){
+   console.log('DOM Listener');
+   })
+   ```
+
+3. IIFE(立即执行函数表达式)创建闭包, 保存了全局作用域window 和 当前函数的作用域 ，因此可以全局的 变量。
+
+   ```
+   var a = 2;
+   (function IIFE(){
+   // 输出2
+   console.log(a);
+   })();
+   ```
+
+   
 
 **闭包的主要作用是什么？**
 
@@ -763,15 +796,20 @@ per.sayHello()
 
 
 
-## 10. 箭头函数中的this指向什么？
+## 10. 箭头函数的理解以及箭头函数中的this指向什么？
+
+注意点：
+
+- 箭头函数内的this是静态的，总是指向定义时所在的对象，而不是调用时，而且this的指向是不可以改变的。
+- this始终指向函数声明时所在作用域下的this的值。
+- 箭头函数不能当做构造函数，也就是不可以用new命令，否则报错。
+- 箭头函数不存在arguments对象，即不能使用伪数组去接受参数，可以使用rest参数代替。
 
 箭头函数不同于传统函数，它其实没有属于⾃⼰的 `this`，
 
 它所谓的 `this` 是, 捕获其外层  上下⽂的 `this` 值作为⾃⼰的 `this` 值。
 
 并且由于箭头函数没有属于⾃⼰的 `this` ，它是不能被 `new` 调⽤的。
-
-
 
 我们可以通过 Babel 转换前后的代码来更清晰的理解箭头函数:
 
@@ -800,18 +838,29 @@ var obj = {
 
 这里我们看到，箭头函数中的 `this` 就是它上层上下文函数中的 `this`。
 
-## 11. Promise 的静态方法
+不适用的场景：与this有关的回调，事件回调，对象的方法回调
+
+适用场景：与this无关的回调，定时器，数组的方法回调
+
+## 11. Promise 的理解和静态方法
+
+Promise是异步编程的一种解决方案
+
+多个串联的异步操作形成的回调地狱
+
+Promise是一个构造函数，用来生成Promise实例。
 
 promise的三个状态: pending(默认)   fulfilled(成功)   rejected(失败)
 
-1. resolve函数被执行时, 会将promise的状态从 pending 改成 fulfilled 成功
-2. reject函数被执行时, 会将promise的状态从pending 改成 rejected 失败
+1. resolve函数被执行时, 会将promise的状态从 pending 改成 fulfilled 成功，在异步操作成功时调用
+2. reject函数被执行时, 会将promise的状态从pending 改成 rejected 失败，在异步操作失败时调用
+3. 状态不受外界的影响，只有异步操作的结果，决定当前是哪一种状态
 
 Promise.reject()
 
 ```js
 new Promise((resolve, reject) => {
-	reject()
+	reject()//返回异步操作的结果
 })
 ```
 
@@ -819,9 +868,33 @@ Promise.resolve()
 
 ```jsx
 new Promise((resolve, reject) => {
-	resolve()
+	resolve()//返回异步操作的结果
 })
 ```
+
+**实例方法**
+
+- **.then():**当实例状态发生改变的时候的回调函数，返回的是一个新的Promise实例，也就是Promise可以链式书写的原因
+
+  ```javascript
+  p.then((value)=>{//resolve(已成功)的状态
+  	console.log(value)
+  },(reason)=>{//rejected(已失败)的状态
+  	console.log(reason)
+  })
+  ```
+
+- **.catch():**用来指定发生错误的回调函数，一般来说通过catch替代then的第二个参数
+
+  ```javascript
+  p.catch((value)=>{
+  	console.log(value)
+  })
+  ```
+
+- **.finally():**用来指定不管Promise对象状态最后如何，都会执行的操作
+
+
 
 **Promise.all([promise1, promise2, promise3])**  等待原则, 是在所有promise都完成后执行, 可以用于处理一些`并发的任务`
 
@@ -832,7 +905,7 @@ Promise.all([promise1, promise2, promise3]).then((values) => {
 })
 ```
 
-Promise.race([promise1, promise2, promise3]) 赛跑, 竞速原则, 只要三个promise中有一个满足条件, 就会执行.then(用的较少)
+**Promise.race([promise1, promise2, promise3]**) 赛跑, 竞速原则, 只要三个promise中有一个满足条件, 就会执行.then(用的较少)
 
 ![image-20221015165822889](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/20221015165823.png)
 
@@ -1013,9 +1086,206 @@ ES7 标准中新增的 `async` 函数，从目前的内部实现来说其实就�
 
 节流：每隔一段时间后执行一次，也就是降低效率。通常使用的场景是：滚动条事件或者resize事件，通常每隔1--~500ms执行一次即可。
 
-## 18. Ajax的原理
+## 18. Ajax的原理是什么？如何实现
 
-Ajax 的原理简单来说通过 XmlHttpRequest 对象来向服务器发异步请求，从服务器获得数据， 然后用javascript来操作DOM而更新页面。这其中最关键的一步就是从服务器获得请求数据。 要清楚这个过程和原理，我们必须对 XMLHttpRequest 有所了解。
+Ajax 的原理简单来说通过 XmlHttpRequest 对象来向服务器发异步请求，从服务器获得数据， 然后用javascript来操作DOM而更新页面。
 
 XMLHttpRequest 是 ajax 的核心机制，它是在 IE5 中首先引入的，是一种支持异步请求的 技术。简单的说，也就是 javascript 可以及时向服务器提出请求和处理响应，而不阻塞用户。 达到无刷新的效果。
+
+实现过程：
+
+1. 创建Ajax的核心对象XMLHttpRequest对象
+
+   new XMLHttpRequest()实例化对象
+
+2. 通过XMLHttpRequest对象的open()方法与服务端建立连接
+
+   new XMLHttpRequest().open(method:表示请求方式，url:服务器的地址)
+
+3. 构建请求所需的数据内容，并通过XMLHttpRequest对象的send()方法发送给服务器端
+
+   new XMLHttpRequest().send(body:发送的数据)
+
+4. 通过XMLHttpRequest对象提供的onreadystatechange事件监听服务器端的通信状态
+
+   new XMLHttpRequest().onreadystatechange主要监听的属性是实例化对象中readyState（5个状态）
+
+   0：open()未调用
+
+   1：send():未调用
+
+   2：send()已经调用，响应头和响应状态已经返回
+
+   3：响应体正在下载，responseText（接收服务端响应的数据）获取到部分的数据
+
+   4：整个请求过程已经完毕
+
+   只要readyState属性值发生了改变，onreadyStatechange被触发
+
+5. 接受并处理服务端向客户端响应的数据结果
+
+6. 将处理结果更新到HTML页面中
+
+```html
+  <script>
+    // 1. 创建 XHR 对象
+    var xhr = new XMLHttpRequest()
+    // 2. 调用 open 函数
+    xhr.open('GET', 'http://www.liulongbin.top:3006/api/getbooks')
+    // 3. 调用 send 函数
+    xhr.send()
+    // 4. 监听 onreadystatechange 事件
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        // 获取服务器响应的数据
+        console.log(xhr.responseText)
+      }
+    }
+  </script>
+```
+
+
+
+## 19. JS中清空数组的方法
+
+1. splice
+
+   第一个参数：规定添加或者删除元素的位置
+
+   第二个参数：要删除元素的数量
+
+   ```
+   arr.splice(0，arr.length)//影响原数组
+   ```
+
+2. length
+
+   ```
+   arr.length=0
+   ```
+
+3. 赋值为[]
+
+   ```
+   arr=[]
+   ```
+
+   
+
+## 20. JS对事件代理的理解以及应用场景
+
+事件代理：把一个元素响应事件的函数委托到另一个元素上，也叫事件委托
+
+事件流：捕获阶段-->目标阶段-->冒泡阶段（事件委托）
+
+```html
+<body>
+    <ul>
+        <li>我是第1个小li</li>
+        <li>我是第2个小li</li>
+        <li>我是第3个小li</li>
+        <li>我是第4个小li</li>
+        <li>我是第5个小li</li>
+    </ul>
+    <script>
+        // 不要每个小li注册事件了  而是把事件委托给他的爸爸 
+        // 事件委托是给父级添加事件 而不是孩子添加事件
+        let ul = document.querySelector('ul')
+        ul.addEventListener('click', function (e) {
+            // alert('我点击了')
+            // 得到当前的元素
+            // console.log(e.target)
+            e.target.style.color = 'red'
+        })
+    </script>
+</body>
+```
+
+只要操作一次dom，从而提高了程序的性能
+
+## 21. JS中内存泄露的几种情况
+
+内存泄露：由于疏忽或者错误造成程序未能释放已经不再使用的内存
+
+1. 意外的全局变量(解决方式：使用严格模式)
+
+   ```html
+   'use strict'
+   function fun(){
+   	a=10
+   	console.log(a)
+   	this.b=20//this指向window
+   }
+   fun()
+   console.log(a)//10
+   console.log(b)//20
+   ```
+
+2. 定时器-->及时清除定时器/没有及时清除的dom元素-->test=null
+
+   ```
+   var time=setInterval(()=>{},2000)
+   clearInterval(time)
+   ```
+
+3. 闭包
+
+   ```html
+   function fun(name){
+   	function fun1(){
+   		console.log(name)
+   	}
+   	return fun1
+   }
+   var fn=fun('张三')
+   fn()//张三
+   //解决办法
+   fn=null
+   ```
+
+4. 事件监听-->解决办法：在不使用的时候取消事件监听
+
+## 22. JS中'use strict' 是什么意思？使用它的区别在哪
+
+使用严格模式，不会支持一些不规范的语法
+
+1. 使调试更加容易
+2. 变量在赋值之前必须要声明，防止意外的全局变量
+3. 取消this的强制转换（fun.apply(null)，引用null或者未定义的值，this值会自动强制到全局变量）
+4. 不允许函数参数重名
+
+## 23. JS中对事件流的理解
+
+事件流：从页面中接收事件的顺序
+
+事件流分为三个阶段：捕获阶段，当前目标阶段，冒泡阶段
+
+## 24. 如何使用Promise封装ajax
+
+```javascript
+function getJSON(url){
+    let xhr=new XMLHttpRequest();
+    xhr.open('get',url,true);
+    xhr.send(null);
+    xhr.onreadystatechange=function(){
+        if(xhr.readyState!==4)return
+        if(xhr.status>=200&&xhr.status<300){
+            resolve(xhr.responseText)
+        }else{
+            reject(new Error(this.statusText))
+        }
+    }
+    //设置错误的监听函数
+    xhr.onerror=function(){
+        reject(new Error(xhr.statusText))
+    }
+    //设置相应数据的类型
+    xhr.responseType='json'
+}
+getJSON('').then((value)=>{
+    console
+}).catch((reason)=>{
+    console.log(reason)
+})
+```
 

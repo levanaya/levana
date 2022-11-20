@@ -83,15 +83,15 @@ ViewModel 通过双向数据绑定把 View 层和 Model 层连接了起来，而
 
 | 生命周期      | 执行时机                                                     |
 | ------------- | ------------------------------------------------------------ |
-| beforeCreate  | 在组件实例被创建之初、组件的属性⽣效之前被调用               |
-| created       | 在组件实例已创建完毕。此时属性也已绑定，但真实DOM还未⽣成，$el 还不可⽤ |
-| beforeMount   | 在组件挂载开始之前被调⽤。相关的 render 函数⾸次被调⽤       |
-| mounted       | 在 el 被新建的 vm.$el 替换并挂载到实例上之后被调用           |
+| beforeCreate  | 在组件实例被创建之初、组件的属性⽣效之前被调用，执行一些初始化任务 |
+| created       | 在组件实例已创建完毕。此时属性也已绑定，但真实DOM还未⽣成，$el 还不可⽤，常用于异步获取数据 |
+| beforeMount   | 在组件挂载开始之前被调⽤。相关的 render 函数⾸次被调⽤，组件未进行渲染，dom还没创建 |
+| mounted       | 在 el 被新建的 vm.$el 替换并挂载到实例上之后被调用，渲染完成，用于获取访问的数据和dom元素。 |
 | beforeUpdate  | 在组件数据修改了, 视图更新之前调⽤。发⽣在虚拟 DOM 打补丁之前 |
 | updated       | 在组件数据修改了, 视图更新之后被调用                         |
 | activited     | 在组件被激活时调⽤（使用了 `<keep-alive>` 的情况下）         |
 | deactivated   | 在组件被停用时调⽤（使用了 `<keep-alive>` 的情况下）         |
-| beforeDestory | 在组件销毁前调⽤  (销毁: vue默认会进行释放掉实例所有的监听, 释放掉所有的组件...) |
+| beforeDestory | 在组件实例销毁前调⽤  (销毁: vue默认会进行释放掉实例所有的监听, 释放掉所有的组件...)，比如清除定时器，解绑事件等等 |
 | destoryed     | 在组件销毁后调⽤  (像定时器,  webscoket连接, ... 跟vue没有太大关联的资源, 需要手动释放!) |
 
 
@@ -99,6 +99,45 @@ ViewModel 通过双向数据绑定把 View 层和 Model 层连接了起来，而
 **生命周期示意图**
 
 ![image-20221015170559038](https://cdn.jsdelivr.net/gh/levanaya/web-img@main/img/20221015170559.png)
+
+
+
+总共分为8个阶段**创建前/后，载入前/后，更新前/后，销毁前/后。** 
+
+创建前/后： 在beforeCreate阶段，vue实例的挂载元素el和数据对象data都为undefined，还未初始化。在created阶段，vue实例的数据对象data有了，el还没有。 
+
+载入前/后：在beforeMount阶段，vue实例的$el和data都初始化了，但还是挂载之前为虚拟的 dom节点，data.message还未替换。在mounted阶段，vue实例挂载完成，data.message成功渲 染。 
+
+更新前/后：当data变化时，会触发beforeUpdate和updated方法。 
+
+销毁前/后：在执行destroy方法后，对data的改变不会再触发周期函数，说明此时vue实例已经解 除了事件监听以及和dom的绑定，但是dom结构依然存在 
+
+**（1）什么是vue生命周期** 
+
+Vue 实例从创建到销毁的过程，就是生命周期。也就是从开始创建、初始化数据、编译模板、挂载 Dom→渲染、更新→渲染、卸载等一系列过程，我们称这是 Vue 的生命周期。 
+
+**（2）vue生命周期的作用是什么** 
+
+它的生命周期中有多个事件钩子，让我们在控制整个Vue实例的过程时更容易形成好的逻辑。 
+
+**（3）第一次页面加载会触发哪几个钩子** 
+
+第一次页面加载时会触发 beforeCreate, created, beforeMount, mounted 这几个钩子 
+
+**（4）DOM 渲染在 哪个周期中就已经完成** 
+
+DOM 渲染在 mounted 中就已经完成了 
+
+**（5）简单描述每个周期具体适合哪些场景** 
+
+生命周期钩子的一些使用方法： 
+
+- beforecreate : 可以在这加个loading事件，在加载实例时触发 
+- created : 初始化完成时的事件写在这里，如在这结束loading事件，异步请求也适宜在这里调用 
+- mounted : 挂载元素，获取到DOM节点 
+- updated : 如果对数据统一处理，在这里写上相应函数 
+- beforeDestroy : 可以做一个确认停止事件的确认框 
+- nextTick : 更新数据后立即操作dom
 
 ## 4. 在Vue中网络请求应该放在哪个生命周期中发起？
 
@@ -151,7 +190,12 @@ this.$emit('add-action', 参数1, 参数2, ...)
 <jack @add-action="fatherFn"></jack>
 ```
 
- 
+ 通过自定义事件向父组件传递数据
+
+自定义事件的流程：
+
+1. 在子组件中，通过$emit来触发事件，传递数据
+2. 在父组件中，通过v-on去监听子组件的事件
 
 ### 5.2  eventBus事件总线
 
@@ -177,7 +221,7 @@ this.$eventBus.$emit('事件名', 参数1, 参数2, ...)
 
 (1) $children
 
-父组件中,  $children 返回的是一个组件集合，如果你能清楚的知道子组件的顺序，你也可以使用下标来操作
+父组件中,  $children 返回的是一个组件集合（数组），如果你能清楚的知道子组件的顺序，你也可以使用下标来操作
 
 ```jsx
 // 父组件中
@@ -229,8 +273,8 @@ this.$refs.comb =>  `<com-b></com-b>`
 
 **使用方法：**
 
-- provide在父组件中, 返回要传给下级的数据
-- inject在需要使用这个数据的子孙组件中注入数据。（不论组件层次有多深）
+- provide在父组件中, 返回要传给下级的数据，是一个对象或者一个返回对象的函数
+- inject在需要使用这个数据的子孙组件中注入数据。（不论组件层次有多深），可以是一个字符串的数组，也可以是一个对象。
 
 父组件
 
@@ -261,7 +305,7 @@ export default {
 }
 ```
 
-
+provide/inject绑定不是响应式的
 
 ### 5.5 $attrs $listeners
 
@@ -352,13 +396,17 @@ export default {
 
 
 
-## 6. computed 和 watch的区别是什么？
+## 6. methods、computed 和 watch的区别是什么？
+
+**methods**
+
+给vue定义方法
 
 **computed**
 
 1. 它是计算属性。主要用于值的计算并一般会返回一个值。所以它更多⽤于计算值的场景 
-2. 它具有缓存性。当访问它来获取值时，它的 getter 函数所计算出来的值会进行缓存
-3. 只有当它依赖的属性值发生了改变，那下⼀次再访问时才会重新调⽤ getter 函数来计算 
+2. 它具有**缓存性**。当访问它来获取值时，它的 getter 函数所计算出来的值会进行缓存
+3. **只有当它依赖的属性值发生了改变**，那下⼀次再访问时才会重新调⽤ getter 函数来计算 
 4. 它适⽤于计算⽐较消耗性能的计算场景 
 5. 必须要有一个返回值
 
@@ -374,7 +422,7 @@ export default {
 
 1. 当目的是进⾏数值计算，且依赖于其他数据，那么推荐使用 `computed`
 
-2. 当需要在某个数据发生变化的, 同时做⼀些稍复杂的逻辑操作，那么推荐使⽤ `watch`
+2. 当需要在某个数据发生变化的, 同时做⼀些稍复杂的逻辑操作（异步操作），那么推荐使⽤ `watch`
 
 
 
@@ -403,6 +451,7 @@ export default {
 **Object.defineProperty**
 
 - 兼容性较好（可⽀持到 IE9）
+- 如果是多层次就要递归
 
 
 
@@ -835,7 +884,7 @@ Vue SPA单页面应用对SEO不太友好，当然也有相应的解决方案，�
 
 博客参考2: https://blog.csdn.net/zyg1515330502/article/details/94737044
 
-## 14. 如何处理 打包出来的项目(首屏)加载过慢的问题
+## 14. 如何处理打包出来的项目(首屏)加载过慢的问题
 
 SPA应用: 单页应用程序, 所有的功能, 都在一个页面中, 如果第一次将所有的路由资源, 组件都加载了, 就会很慢!
 
@@ -944,6 +993,8 @@ SPA应用: 单页应用程序, 所有的功能, 都在一个页面中, 如果第
 
 ## 17. 虚拟 DOM 实现原理 
 
+如果直接操作真实的dom 性能低
+
 - 虚拟DOM本质上是JavaScript对象,是对真实DOM的抽象 
 
 - 状态变更时，记录新树和旧树的差异 
@@ -960,11 +1011,15 @@ route 是“路由信息对象”，包括 path , params , hash , query , fullPa
 
 router 是“路由实例对象”，包括了路由的跳转方法( push 、 replace )，钩子函数等。
 
+$router: 全局路由对象，包含很多的属性和对象，包含所有的路由，任何页面都可以调用push（跳转页面）、replace（替换页面），go（页面的前进或者后退）
+
+$route: 局部路由对象（当前激活的路由信息对象），可以获取当前路由的信息（path，name，params，query）
+
 ## 19. Vue 的 nextTick 的原理是什么？ 
 
 **1）为什么需要 nextTick** 
 
-Vue 是异步修改 DOM 的并且不鼓励开发者直接接触 DOM，但有时候业务需要必须对数据更改--刷新后 的 DOM 做相应的处理，这时候就可以使用 Vue.nextTick(callback)这个 api 了。 
+Vue 是异步修改 DOM 的并且不鼓励开发者直接接触 DOM，但有时候业务需要必须对数据更改--刷新后 的 DOM 做相应的处理，这时候就可以使用 Vue.nextTick(callback)这个 api 了。 （vue是异步渲染的框架，数据更新之后，dom是不会立刻渲染，$nextTick会在dom渲染之后被触发，用来获取最新的dom节点）
 
 **2）理解原理前的准备** 
 
@@ -977,6 +1032,13 @@ Vue 是异步修改 DOM 的并且不鼓励开发者直接接触 DOM，但有时�
 **3）理解 nextTick** 
 
 而 nextTick 的原理正是 vue 通过异步队列控制 DOM 更新和 nextTick 回调函数先后执行的方式。如果 大家看过这部分的源码，会发现其中做了很多 isNative()的判断，因为这里还存在兼容性优雅降级的问 题。可见 Vue 开发团队的深思熟虑，对性能的良苦用心。
+
+是将回调函数延迟在下一次dom更新数据之后调用，用于获取更新后的dom
+
+**4）使用场景** 
+
+1. 在生命周期函数created中进行dom操作，一定要放到nextTick函数中执行
+2. 在数据变化后要执行某个操作，而这个操作需要使用随数据变化而变化的dom结构时，这个操作需要放到nextTick中。
 
 ## 20. vuex
 
@@ -1018,5 +1080,136 @@ Action 类似于 mutation，不同在于：Action 提交的是 mutation，而不
 
 增加耦合，大量的上传派发，会让耦合性大大增加，本来Vue用Component就是为了减少耦合，现 在这么用，和组件化的初衷相背
 
+## 21. v-for 和v-if 为什么不建议一起用
 
+v-for 优先级高于 v-if，如果将两者放在一起，会执行 v-for，先循环列表，v-if 去判断，造成性能浪费。
 
+## 22. v-if 和v-show 的区别
+
+都是控制元素在页面上是否显示
+
+- v-show指令是通过修改元素的display的CSS属性让其显示或者隐藏 
+- v-if指令是直接销毁和重建DOM达到让元素显示和隐藏的效果
+
+## 23. vue 中 ref 的作用
+
+1. 获取页面中的DOM元素
+2. 获取子组件对象
+
+定义ref属性，用来给元素或者子组件注册引用信息，父组件通过$refs获取到对应的dom对象，和子组件的信息。
+
+```vue
+<template>
+	<div class="home">
+        <p ref="p" id="pid">
+            我是p标签
+        </p>
+    	<HelloWorld ref="helloWorld"></HelloWorld>
+    </div>
+</template>
+<script>
+ import HelloWorld from "@/components/HelloWorld.vue";
+ export default {
+     name:"HomeVies",
+     mounted(){
+         console.log(this.$refs);
+         console.log(this.$refs.helloWorld.message);
+         console.log(this.$refs.helloWorld.add(1,2));
+     },
+     components:{
+         HelloWorld,
+     },
+ };
+</script>
+```
+
+## 24. vue 中常用的修饰符
+
+**v-on的常用的修饰符**
+
+- .stop:取消事件冒泡
+- .prevent：取消默认事件
+
+- .{keyCode|keyAlias}:@keyup.enter="keyup"
+
+- .native：监听自定义组件根元素的原生事件
+
+- .once：只触发一次回调
+
+**v-model的常用的修饰符**
+
+- .lazy：可以让数据在失去焦点或者回车的时候才会更新
+- .number：将输入框中的内容转为数字类型
+- .trim：去除收尾空格
+
+## 25. vue 中哪些数组方法可以直接对数组修改实现视图更新
+
+利用索引值设置数组的元素，直接修改数组的长度，都不可以触发视图更新
+
+利用for循环反转数组也不可以触发视图更新
+
+触发视图更新：
+
+- push()
+- pop()
+- splice(0,this.arr.length)
+- reverse()
+- shift()/unshift()
+- sort()
+- concat()
+
+## 26. vue 中如何使用自定义指令
+
+局部注册
+
+```vue
+directives：{//自定义指令，不需要写v-，使用的时候需要添加v-
+    focus：{
+		inserted:function(){//表示被绑定的元素插入父节点的时候调用，bind/update
+			//el:表示指令所绑定的元素
+			//binding:对象，属性name：指令名，value：指令绑定值
+			el.focus()//获取焦点
+		}
+    }
+}
+```
+
+全局注册（main.js)
+
+```vue
+//Vue.directive("指令的名字"，"对象数据也可以是一个指令函数")
+Vue.derective('focus',{
+	inserted:function(el){
+		el.focus()
+	}
+})
+```
+
+## 27. 组件中的data为什么必须是一个函数
+
+组件是可复用的实例
+
+局部作用域，每一次服用这个组件，返回的都是一个data，如果单纯的写成对象的形式，所有的组件实例公用一个data，造成数据污染。
+
+## 28. vue2中是如何检测数组变化的
+
+vue2中没有使用 defineProperty 对这个数组的每一项进行拦截（提供性能），而是选择重写数组{push}方法
+
+数组中如果是对象的数据类型，也继续递归处理
+
+## 29. vue 中如何进行依赖收集
+
+每一个属性都有一个dep，存放我们所依赖的watcher，当属性变化后通知自己对应的watcher去更新
+
+默认在渲染的时候（获取这个响应式数据），此时就会触发属性收集依赖dep.depend()
+
+当属性发生改变时触发watcher 通过dep.notify()
+
+## 30. vue 中diff算法
+
+**vue2：深度递归+双指针**
+
+1. 判断是不是同一个元素，不是同一个元素，直接替换
+2. 是同一个元素=》比对属性=》比对儿子（1老的有儿子，新的没有儿子 2新的有儿子，老的没有儿子  3都是文本情况  4都有儿子）=》双指针：头头，尾尾，头尾，尾头=》对比查找继续复用
+
+**vue3：采用最长递增子序列**
