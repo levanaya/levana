@@ -1087,7 +1087,7 @@ ES7 标准中新增的 `async` 函数，从目前的内部实现来说其实就�
 
 引用数据类型: 对象Object（包含普通对象-Object，数组对象-Array，正则对象-RegExp，日期对象Date，数学函数-Math，函数对象-Function）
 
-
+基础数据类型存储在栈中，引用类型存储在堆中。
 
 ## 17. 防抖和节流
 
@@ -1448,3 +1448,66 @@ obj.__proto__.constructor=Array;
 
 1. 使用JSON自带的.stringify方法来判断
 2. 使用Object.keys()来判断，返回一个数组，通过判断数组长度
+
+## 30. JS数据类型检测的方式有哪些
+
+1. typeof(检测数据类型的运算符)
+
+   ```javascript
+   console.log(typeof 10)
+   ```
+
+2. instanceof(检测某一个实例是否属于这个类，可以正确判断对象的类型，不可以判断基本数据类型，内部运行机制，判断在它的原型链上能否找到这个类型的原型)
+
+   ```javascript
+   console.log(10 instanceof Number)
+   ```
+
+3. constructor(检测实例和类的关系，从而检测数据类型)
+
+   ```javascript
+   console.log((10).constructor===Number)
+   ```
+
+4. Object.prototype.toString.call()(检测数据类型)
+
+   ```javascript
+   var a=Object.prototype.toString
+   console.log(a.call(10))
+   ```
+
+   
+
+## 31. JS中判断数组的方法有哪些
+
+1. 通过Object.prototype.toString.call()做判断
+
+   ```javascript
+   console.log(Object.prototype.toString.call([]).slice(8,-1)==='Array')
+   ```
+
+2. 通过原型链做判断
+
+   ```javascript
+   console.log([]._proto===Array.prototype)
+   ```
+
+3. 通过ES6的Array.isArray()做判断
+
+   ```javascript
+   console.log(Array.isArray([]))
+   ```
+
+4. 通过instanceof做判断
+
+   ```javascript
+   console.log([] instanceof Array)
+   ```
+
+5. 通过Array.prototype.isPrototypeof做判断
+
+   ```javascript
+   console.log(Array.prototype.isPrototypeof([]))
+   ```
+
+   
