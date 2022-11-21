@@ -727,6 +727,15 @@ obj.test() // "hello,world"
 
 硬绑定 => call  apply  bind
 
+作用：改变函数运行时this的指向
+
+区别：
+
+- apply：两个参数，第一个是this的指向，第二个是函数接受的参数，以数组的形式传入，如果第一个参数null或者undefined，this默认指向window
+- call：两个参数，第一个是this的指向，第二个是参数列表
+- bind：两个参数，第一个是this的指向，第二个是参数列表
+- call和apply改变this指向原函数立即执行，临时改变this指向一次。而bind改变this指向不会立即执行，返回一个永久改变this指向的函数。
+
 可以显式的进行绑定：
 
 ```js
@@ -1283,9 +1292,159 @@ function getJSON(url){
     xhr.responseType='json'
 }
 getJSON('').then((value)=>{
-    console
+    console.log(value)
 }).catch((reason)=>{
     console.log(reason)
 })
 ```
 
+## 25. JS如何判断一个属性是属于实例对象还是继承于构造函数
+
+通过hasOwnProperty()检测一个属性是否属于自身对象，还是继承于原型链上的
+
+```javascript
+function Person(name,age){
+    this.name=name;
+    this.age=age;
+}
+Person.prototype.sex="男"；
+var p=new Person("张三"，18)；
+p.phone=123456;
+p.height=188;
+console.log(p);
+console.log(p.hasOwnProperty("phone"))//true
+console.log(p.hasOwnProperty("sex"))//false
+//筛选出自身属性
+for(let i in p){
+    if(p.hasOwnProperty(i)){
+        console.log(p[i])//name,age,phone,height
+    }
+}
+```
+
+## 26. ES6 中for...of 和for...in 的区别
+
+for ...of 遍历获取对象的键值，for...in获取对象的键名
+
+for...in会遍历对象整个原型链，for...of只会遍历当前对象
+
+对于数组的遍历，for...in 返回数组中所有可枚举的属性，for ...of返回数组的下标对应的属性值
+
+for ...in，主要是为了遍历对象而产生，for...of 可以用来遍历数组，对象等
+
+```javascript
+function Person(name,age,sex){
+    this.name=name
+    this.age=age
+    this.sex=sex
+}
+Person.prototype.height=188
+var p=new Person("张三"，18，男)
+p[Symbol.iterator]=function(){
+    var keys=Object.keys(this);
+    var index=0;
+    return {
+        next(){
+            if(index<keys.length){
+                return {value:p[keys[index++],done:false]}
+            }else{
+                return {value:undefined,done:true}
+            }
+        }
+    }
+}
+for(let value of p){
+    console.log(value)
+}
+for(let key in p){
+    console.log(key)
+}
+```
+
+```javascript
+var arr=[1,2,3,4,5]
+for(let i in arr){
+    console.log(i);//0,1,2,3,4
+}
+for(let i of arr){
+    console.log(i)//1,2,3,4,5
+}
+```
+
+## 27. JS中数组的遍历方法有哪些
+
+forEach:不会改变原数组，没有返回值
+
+```javascript
+var arr=[1,2,3,4,5,6]
+arr.forEach((item,index,arr)=>{
+    console.log(item);
+    console.log(index);
+    console.log(arr);
+})
+```
+
+map:不会改变原数组，有返回值
+
+```javascript
+var arr=[1,2,3,4,5,6]
+let resultMap=arr.map((item,index,arr)=>{
+    console.log(item);
+    console.log(index);
+    console.log(arr);
+    return index*2
+})
+```
+
+filter:过滤数组，有返回值，返回包含符合条件的元素的数组
+
+```javascript
+arr.filter((item)=>{
+    console.log(item);
+    return item>3
+})
+```
+
+for ...of:返回是数组的元素
+
+```javascript
+for(let value of arr){
+    console.log(value)//1,2,3,4,5
+}
+```
+
+reduce:接收一个函数，作为一个累加器
+
+第一个参数计算之后返回的值或者初始值，第二个是当前的元素
+
+```javascript
+let result=arr.reduce((pre,item)=>{
+    console.log("pre",pre)
+    console.log("item",item)
+    return pre+item
+},0)
+console.log(result)//21
+```
+
+## 28. JS如何判断一个对象是否属于一个类
+
+类本身指向就是构造函数，类的数据类型就是函数
+
+```javascript
+function Person(name){
+	this.name=name
+}
+var obj=new Person("张三")
+//instanceof：判断构造函数的prototype属性是否出现在对象的原型链的任意位置
+var obj1={}
+console.log(obj instanceof Person);//true
+console.log(obj1 instanceof Person);//false
+//对象的属性constructor来判断，指向该对象的构造函数(不好，可被修改)
+console.log(obj.__proto__constructor);
+obj.__proto__.constructor=Array;
+```
+
+## 29. JS中如何判断一个对象是空对象
+
+1. 使用JSON自带的.stringify方法来判断
+2. 使用Object.keys()来判断，返回一个数组，通过判断数组长度
