@@ -2079,9 +2079,6 @@ chrome浏览器查看Cookie的值，有两种方式,分布式:
 
 方式一:
 
-![1629389317463](../../../../../BaiduNetdiskDownload/JavaWeb/day11-%E4%BC%9A%E8%AF%9D%E6%8A%80%E6%9C%AF/%E8%AE%B2%E4%B9%89/assets/1629389317463.png)
-
-
 
 方式二:选中打开开发者工具或者 使用快捷键F12 或者 Ctrl+Shift+I
 

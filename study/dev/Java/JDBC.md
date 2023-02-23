@@ -254,17 +254,11 @@ Connection几口中定义了3个对应的方法：
 
 * 开启事务
 
-  ![image-20210725173444628](../../../../../BaiduNetdiskDownload/day03-JDBC/ppt/assets/image-20210725173444628.png)
-
   参与autoCommit 表示是否自动提交事务，true表示自动提交事务，false表示手动提交事务。而开启事务需要将该参数设为为false。
 
 * 提交事务
 
-  ![image-20210725173618636](../../../../../BaiduNetdiskDownload/day03-JDBC/ppt/assets/image-20210725173618636.png)
-
 * 回滚事务
-
-  ![image-20210725173648674](../../../../../BaiduNetdiskDownload/day03-JDBC/ppt/assets/image-20210725173648674.png)
 
 具体代码实现如下：
 
